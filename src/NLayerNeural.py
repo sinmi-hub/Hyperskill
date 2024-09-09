@@ -57,4 +57,32 @@ class NLayerNeural(Neural):
         return feedforward
 
     def backprop(self, X, y, alpha):
-        pass
+        feed_list = self.forward(X)
+        err_direction = d_mse(feed_list[-1], y)  # starts at last layer
+        layer = self.layers - 1
+
+        while layer >= 0:
+            if layer == 0:
+                err = err_direction * d_sigmoid(np.dot(X, self.w[layer]) + self.bias[layer])
+                dW = np.dot(X.T, err) / X.shape[0]
+            else:
+                err = err_direction * d_sigmoid(np.dot(feed_list[layer-1], self.w[layer]) + self.bias[layer])
+                dW = np.dot(feed_list[layer-1].T, err) / X.shape[0]
+            dB = np.mean(err, axis=0)
+
+            # weight and bias update
+            self.w[layer] -= alpha * dW
+            self.bias[layer] -= alpha * dB
+
+            # update err direction to point to prev layer
+            err_direction = np.dot(err, self.w[layer].T)
+            layer -= 1
+
+        return mse((self.forward(X))[-1], y)  # return updated loss
+
+    # TODO
+    """
+    Include comment on logic of how neurons reduce as the layers go deeper
+    Add comment to forward and backward propagation
+    Can change data set
+    """
