@@ -55,6 +55,10 @@ class Neural(ABC):
         return loss_list
 
     def accuracy(self, X_test, y_test):
-        y_pred = np.argmax(self.forward(X_test), axis=1)
+        val = self.forward(X_test)
+        if type(val) is list:
+            y_pred = np.argmax(self.forward(X_test)[-1], axis=1)
+        else:
+            y_pred = np.argmax(self.forward(X_test), axis=1)
         y_true = np.argmax(y_test, axis=1)
         return np.mean(y_pred == y_true)
